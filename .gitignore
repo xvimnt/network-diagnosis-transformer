@@ -1,0 +1,66 @@
+# Python
+src/__pycache__/
+src/*.py[cod]
+src/*$py.class
+src/*.so
+src/.Python
+src/build/
+src/develop-eggs/
+src/dist/
+src/downloads/
+src/eggs/
+src/.eggs/
+src/lib/
+src/lib64/
+src/parts/
+src/sdist/
+src/var/
+src/wheels/
+src/*.egg-info/
+src/.installed.cfg
+src/*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.env
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Model files and data
+*.pkl
+*.h5
+*.pt
+*.pth
+*.bin
+*.model
+*.joblib
+*.safetensors
+
+# Project specific
+results/
+logs/
+models/
+data/
+*.csv
+*.json
+*.txt
+!requirements.txt
+
+# Large files
+results/checkpoint-6/optimizer.pt
+models/transformer_model/model.safetensors
+results/checkpoint-6/model.safetensors
+data/dataset.csv
+
+# System
+.DS_Store
+Thumbs.db
