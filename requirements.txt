@@ -4,3 +4,6 @@ joblib
 transformers
 torch
 datasets
+fastapi
+uvicorn[standard]
+pydantic

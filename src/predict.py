@@ -4,7 +4,7 @@ import torch
 import joblib
 import pandas as pd
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
-from config import MODEL_PATH
+from src.config import MODEL_PATH
 
 MODEL_EXPORT_PATH = os.path.join(os.path.dirname(MODEL_PATH), "transformer_model")
 TOKENIZER_EXPORT_PATH = os.path.join(os.path.dirname(MODEL_PATH), "transformer_tokenizer")
