@@ -23,6 +23,15 @@ This project classifies technical descriptions of network equipment issues into 
    ```bash
    python src/predict.py "interface eth0 is down"
    ```
+5. Run the API:
+   ```bash
+   python run.py
+   ```
+6. Make a POST request to `http://localhost:8000/predict` with a JSON body containing the description of the issue.
+Invoke-WebRequest -Uri http://localhost:8000/predict `
+  -Method POST `
+  -Headers @{ "Content-Type" = "application/json" } `
+  -Body (Get-Content -Raw -Path ".\payload.json")
 
 ## Configuration
 
