@@ -1,4 +1,5 @@
 import os
+import time
 import pandas as pd
 from datasets import Dataset
 from transformers import (AutoTokenizer, AutoModelForSequenceClassification, Trainer, TrainingArguments)
@@ -18,22 +19,18 @@ import pandas as pd
 
 df = pd.read_csv(DATA_PATH, sep=';', encoding='latin1')
 
-# Group by id_network_diagnostic (incident/case id)
-if 'id_network_diagnostic' not in df.columns:
-    raise ValueError("Expected 'id_network_diagnostic' column in dataset.")
-
-# Set up column names
-label_col = 'id_diagnostic_type'
-group_col = 'id_network_diagnostic'
+# Get actual column names from the dataframe
+label_col = df.columns[0]  # First column (id_diagnostic_type with potential BOM)
+description_col = 'description'
 
 # Drop rows with missing values in key columns
-df = df.dropna(subset=[group_col, 'description', label_col])
+df = df.dropna(subset=[description_col, label_col])
 
-# Group by incident ID, keeping the description and label
-grouped = df.groupby([group_col, label_col])['description'].first().reset_index()
+# Create a clean dataframe with just the needed columns
+df_clean = df[[description_col, label_col]].copy()
 
 label_encoder = LabelEncoder()
-grouped['label'] = label_encoder.fit_transform(grouped[label_col])
+df_clean['label'] = label_encoder.fit_transform(df_clean[label_col])
 
 # 2. Tokenization
 from transformers import AutoTokenizer
@@ -55,9 +52,8 @@ from sklearn.model_selection import train_test_split
 from datasets import Dataset
 
 train_df, test_df = train_test_split(
-    grouped[['description', 'label']],
+    df_clean,
     test_size=0.2,
-    stratify=grouped['label'],
     random_state=42
 )
 # Rename and fix dtype for HuggingFace compatibility
@@ -74,7 +70,7 @@ test_dataset = test_dataset.map(preprocess_function, batched=True)
 dataset = {'train': train_dataset, 'test': test_dataset}
 
 # 3. Model
-num_labels = grouped['label'].nunique()
+num_labels = df_clean['label'].nunique()
 model = AutoModelForSequenceClassification.from_pretrained(
     MODEL_NAME,
     num_labels=num_labels,
@@ -117,9 +113,24 @@ trainer = Trainer(
     compute_metrics=compute_metrics,
 )
 
+# Start timing the training process
+start_time = time.time()
+
+# Get total row count
+total_rows = len(dataset['train']) + len(dataset['test'])
+
 trainer.train()
 
-# 5. Save model, tokenizer, and label encoder
+# Calculate total training time
+total_time = time.time() - start_time
+total_minutes = total_time / 60
+
+# Print training statistics
+print(f"\nTraining Statistics:")
+print(f"Total training time: {total_minutes:.2f} minutes")
+print(f"Total number of rows processed: {total_rows:,}")
+
+# Save model, tokenizer and label encoder
 os.makedirs(MODEL_EXPORT_PATH, exist_ok=True)
 model.save_pretrained(MODEL_EXPORT_PATH)
 tokenizer.save_pretrained(TOKENIZER_EXPORT_PATH)
